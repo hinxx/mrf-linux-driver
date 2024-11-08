@@ -9,6 +9,7 @@ endif
 ifeq ($(DEBUG),y)
   EXTRA_CFLAGS += -DDEBUG
 endif
+EXTRA_CFLAGS += -DHAVE_UNLOCKED_IOCTL
 
 TARGET = pci_mrfevr pci_mrfevg
 

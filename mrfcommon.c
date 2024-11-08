@@ -474,9 +474,8 @@ ssize_t ev_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos
             *f_pos += count;
 
             retval = count;
-            break;
         }
-        if (ev_device->devtype & (MRF_DEVTYPE_V5_9056)) {
+        else if (ev_device->devtype & (MRF_DEVTYPE_V5_9056)) {
             if ((*f_pos & ~(FLASH_DATA_ALLOC_SIZE - 1)) != ev_device->xcf_data_pos) {
                 flash_fastread(ev_device, ev_device->xcf_data, (unsigned int)(*f_pos & ~(FLASH_DATA_ALLOC_SIZE - 1)), FLASH_DATA_ALLOC_SIZE);
                 ev_device->xcf_data_pos = *f_pos & ~(FLASH_DATA_ALLOC_SIZE - 1);
@@ -493,9 +492,8 @@ ssize_t ev_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos
             *f_pos += count;
 
             retval = count;
-            break;
         }
-        if (ev_device->devtype & (MRF_DEVTYPE_ECP3_PCI | MRF_DEVTYPE_ECP3_PCIE)) {
+        else if (ev_device->devtype & (MRF_DEVTYPE_ECP3_PCI | MRF_DEVTYPE_ECP3_PCIE)) {
             if ((*f_pos & ~(FLASH_DATA_ALLOC_SIZE - 1)) != ev_device->xcf_data_pos) {
                 flash_fastread(ev_device, ev_device->xcf_data, (unsigned int)(*f_pos & ~(FLASH_DATA_ALLOC_SIZE - 1)) + FLASH_SECTOR_PRIMARY_START,
                                FLASH_DATA_ALLOC_SIZE);
@@ -513,9 +511,8 @@ ssize_t ev_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos
             *f_pos += count;
 
             retval = count;
-            break;
         }
-        if (ev_device->devtype & (MRF_DEVTYPE_K7_PCIE)) {
+        else if (ev_device->devtype & (MRF_DEVTYPE_K7_PCIE)) {
             if ((*f_pos & ~(FLASH_DATA_ALLOC_SIZE - 1)) != ev_device->xcf_data_pos) {
                 flash_fastread(ev_device, ev_device->xcf_data, (unsigned int)(*f_pos & ~(FLASH_DATA_ALLOC_SIZE - 1)), FLASH_DATA_ALLOC_SIZE);
                 ev_device->xcf_data_pos = *f_pos & ~(FLASH_DATA_ALLOC_SIZE - 1);
@@ -532,9 +529,9 @@ ssize_t ev_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos
             *f_pos += count;
 
             retval = count;
-            break;
         }
     }
+    break;
 
     case DEVICE_FPGA:
         if (ev_device->devtype & (MRF_DEVTYPE_V2P_9030 | MRF_DEVTYPE_V5_9056)) {
@@ -552,8 +549,8 @@ ssize_t ev_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos
             *f_pos += count;
 
             retval = count;
-            break;
         }
+    break;
     }
 
 read_out:
@@ -614,9 +611,8 @@ ssize_t ev_write(struct file *filp, const char __user *buf, size_t count, loff_t
             }
 
             retval = count;
-            break;
         }
-        if (ev_device->devtype & (MRF_DEVTYPE_V5_9056)) {
+        else if (ev_device->devtype & (MRF_DEVTYPE_V5_9056)) {
             if (*f_pos < ev_device->xcf_data_pos)
                 goto write_out;
 
@@ -636,9 +632,8 @@ ssize_t ev_write(struct file *filp, const char __user *buf, size_t count, loff_t
             }
 
             retval = count;
-            break;
         }
-        if (ev_device->devtype & (MRF_DEVTYPE_ECP3_PCI | MRF_DEVTYPE_ECP3_PCIE)) {
+        else if (ev_device->devtype & (MRF_DEVTYPE_ECP3_PCI | MRF_DEVTYPE_ECP3_PCIE)) {
             if (*f_pos < ev_device->xcf_data_pos)
                 goto write_out;
 
@@ -658,9 +653,8 @@ ssize_t ev_write(struct file *filp, const char __user *buf, size_t count, loff_t
             }
 
             retval = count;
-            break;
         }
-        if (ev_device->devtype & (MRF_DEVTYPE_K7_PCIE)) {
+        else if (ev_device->devtype & (MRF_DEVTYPE_K7_PCIE)) {
             if (*f_pos < ev_device->xcf_data_pos)
                 goto write_out;
 
@@ -680,8 +674,8 @@ ssize_t ev_write(struct file *filp, const char __user *buf, size_t count, loff_t
             }
 
             retval = count;
-            break;
         }
+        break;
     case DEVICE_FPGA:
         if (ev_device->devtype & (MRF_DEVTYPE_V2P_9030 | MRF_DEVTYPE_V5_9056)) {
             int i;
@@ -704,8 +698,8 @@ ssize_t ev_write(struct file *filp, const char __user *buf, size_t count, loff_t
                     jtag_9056_load_fpga_byte(ev_device->pLC, ev_device->fpga_conf_data[i]);
 
             retval = count;
-            break;
         }
+        break;
     }
 
 write_out:
@@ -730,9 +724,9 @@ int ev_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned 
 
     /* Check access */
     if (_IOC_DIR(cmd) & _IOC_READ)
-        ret = !access_ok(VERIFY_WRITE, (void __user *)arg, _IOC_SIZE(cmd));
+        ret = !access_ok((void __user *)arg, _IOC_SIZE(cmd));
     else if (_IOC_DIR(cmd) & _IOC_WRITE)
-        ret = !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
+        ret = !access_ok((void __user *)arg, _IOC_SIZE(cmd));
     if (ret)
         return -EFAULT;
 
@@ -887,11 +881,11 @@ int ev_irq_enable(struct mrf_dev *ev_device) {
     if ((((ev_device->fw_version & 0xF0000000) == 0x10000000) && ((ev_device->fw_version & 0x0FEFF) >= 0x000A)) ||
         (((ev_device->fw_version & 0xF0000000) == 0x20000000) && ((ev_device->fw_version & 0x0FEFF) >= 0x0008))) {
         *evr_mirq_enable |= __constant_cpu_to_be32(EV_IRQ_PCI_DRIVER_ENA);
-        printk(KERN_WARNING DEVICE_NAME ": EVR %08x irq addr %08x, %08x enable\n", (int)ev_device->fw_version, (int)evr_mirq_enable,
+        printk(KERN_WARNING DEVICE_NAME ": EVR %08x irq addr %p, %08x enable\n", (int)ev_device->fw_version, evr_mirq_enable,
                (int)be32_to_cpu(*evr_mirq_enable));
     } else {
         *evr_irq_enable |= __constant_cpu_to_be32(EV_IRQ_PCI_DRIVER_ENA);
-        printk(KERN_WARNING DEVICE_NAME ": EVR %08x irq addr %08x, %08x enable\n", (int)ev_device->fw_version, (int)evr_irq_enable,
+        printk(KERN_WARNING DEVICE_NAME ": EVR %08x irq addr %p, %08x enable\n", (int)ev_device->fw_version, evr_irq_enable,
                (int)be32_to_cpu(*evr_irq_enable));
     }
 
@@ -907,11 +901,11 @@ int ev_irq_disable(struct mrf_dev *ev_device) {
     if ((((ev_device->fw_version & 0xF0000000) == 0x10000000) && ((ev_device->fw_version & 0x0FEFF) >= 0x000A)) ||
         (((ev_device->fw_version & 0xF0000000) == 0x20000000) && ((ev_device->fw_version & 0x0FEFF) >= 0x0008))) {
         *evr_mirq_enable &= __constant_cpu_to_be32(~EV_IRQ_PCI_DRIVER_ENA);
-        printk(KERN_WARNING DEVICE_NAME ": EVR %08x irq addr %08x, %08x disable\n", (int)ev_device->fw_version, (int)evr_mirq_enable,
+        printk(KERN_WARNING DEVICE_NAME ": EVR %08x irq addr %p, %08x disable\n", (int)ev_device->fw_version, evr_mirq_enable,
                (int)be32_to_cpu(*evr_mirq_enable));
     } else {
         *evr_irq_enable &= __constant_cpu_to_be32(~EV_IRQ_PCI_DRIVER_ENA);
-        printk(KERN_WARNING DEVICE_NAME ": EVR %08x irq addr %08x, %08x disable\n", (int)ev_device->fw_version, (int)evr_irq_enable,
+        printk(KERN_WARNING DEVICE_NAME ": EVR %08x irq addr %p, %08x disable\n", (int)ev_device->fw_version, evr_irq_enable,
                (int)be32_to_cpu(*evr_irq_enable));
     }
 
